@@ -12,8 +12,8 @@ from stem import Signal
 from stem.control import Controller
 import threading
 
-## Requester config
-## TODO: Add support for session and sessionless requester in TorConnection
+# Requester config
+# TODO: Add support for session and sessionless requester in TorConnection
 
 
 def log_msg(msg):
@@ -22,7 +22,8 @@ def log_msg(msg):
     from datetime import datetime as dd
     ts = '[ {} ] '.format(dd.now())
     print(ts + msg)
-## END Requester config
+# END Requester config
+
 
 def get_public_ip(requester):
     """
@@ -31,10 +32,11 @@ def get_public_ip(requester):
     """
     try:
         # rsp=requester.get('http://httpbin.org/ip')
-        rsp=requester.get('http://ip.jsontest.com')
+        rsp = requester.get('http://ip.jsontest.com')
 
     except ConnectionError as e:
         log_msg(str(e))
+        # TODO: Finish implementing the logic here
         tor_process.kill()
         sys.exit(1)
     # return rsp.json()['origin']
@@ -48,57 +50,57 @@ def print_bootstrap_lines(line):
     
 
 class TorConnection:
-    def __init__(self, 
-            proxy_host='localhost', 
-            proxy_port = '9050' , 
-            control_port = '9051'):
+    def __init__(self,
+                 proxy_host='localhost',
+                 proxy_port='9050',
+                 control_port='9051'):
         self.__dict__['proxy_host'] = proxy_host
         self.__dict__['proxy_port'] = proxy_port
         self.__dict__['control_port'] = control_port
         self.tor = None
         self.controller = None
-        ## Requester Settings
-        ## TODO: ERROR this will fail move it elsewhere
-        self.headers = {'user-agent':config.USER_AGENT}
+        # Requester Settings
+        # TODO: ERROR this will fail move it elsewhere
+        self.headers = {'user-agent': config.USER_AGENT}
         socks_proxy = 'socks5h://' + self.proxy_host + ':' + self.proxy_port
         self.__proxies = {'http': socks_proxy,
-                'https': socks_proxy} 
+                          'https': socks_proxy}
 
         self.__dict__['requester'] = None
-        ### NOTE: This will mess up the requests get function,
-        ### possibly messing up many parts of this script, throughly test it
-        ## requests.get = get_decorator(requests.get, self.headers, self.__proxies)
-        ## self.__dict__['nosess_requester'] = requests
+        # NOTE: This will mess up the requests get function,
+        # possibly messing up many parts of this script, throughly test it
+
+        # requests.get = get_decorator(requests.get, self.headers, self.__proxies)
+        # self.__dict__['nosess_requester'] = requests
         self.__dict__['nosess_requester'] = requests
 
     def get(self, url, **kwargs):
         ''' Requests Get Method with headers and Tor Proxies configured '''
         #print(f'inside no_sess_get, args:{tuple(args)}')
-        return requests.get(url, 
-                headers=self.headers, 
-                proxies=self.__proxies, 
-                **kwargs
-                )
+        return requests.get(url,
+                            headers=self.headers,
+                            proxies=self.__proxies,
+                            **kwargs
+                            )
+
     def post(self, url, **kwargs):
         '''  Requests Post Method with headers and Tor Proxies configured '''
-        return requests.get(url, 
-                headers=self.headers, 
-                proxies=self.__proxies, 
-                **kwargs ### e.g. the data and json keyworded arguments
-                )
-
+        return requests.get(url,
+                            headers=self.headers,
+                            proxies=self.__proxies,
+                            **kwargs  # e.g. the data and json keyworded arguments
+                            )
 
     @property
     def proxy_host(self):
         ''' Tor Server Host '''
         return self.__dict__['proxy_host']
 
-
     @property
     def proxy_port(self):
         ''' Tor Server Port'''
         return self.__dict__['proxy_port']
-    
+
     @proxy_port.setter
     def proxy_port(self, value):
         print(f'Attempting to change Tor\'s Port from {self.proxy_port} to {value}')
