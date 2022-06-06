@@ -42,10 +42,11 @@ def get_public_ip(requester):
     # return rsp.json()['origin']
     return rsp.json()['ip']
 
-# TODO: Consider just including this function inside start_tor method
+
 def print_bootstrap_lines(line):
-  if "Bootstrapped " in line:
-    print(term.format(line, term.Color.BLUE))
+    # TODO: Consider just including this function inside start_tor method
+    if "Bootstrapped " in line:
+        print(term.format(line, term.Color.BLUE))
 
     
 
@@ -104,14 +105,14 @@ class TorConnection:
     @proxy_port.setter
     def proxy_port(self, value):
         print(f'Attempting to change Tor\'s Port from {self.proxy_port} to {value}')
-        if not isinstance(value, str): 
+        if not isinstance(value, str):
             raise ValueError(f'value:{value} must be a string')
 
         self.__dict__['proxy_port'] = value
-        ### TODO: Repeated code, fix it
+        # TODO: Repeated code, fix it
         socks_proxy = 'socks5h://' + self.proxy_host + ':' + self.proxy_port
         self.__proxies = {'http': socks_proxy,
-                'https': socks_proxy} 
+                          'https': socks_proxy}
         log_msg('Tor Server configuration changed restarting Tor ...')
         self.stop_tor()
         self.start_tor()
@@ -224,7 +225,6 @@ class TorConnection:
                                                 self.proxy_port,
                                                 self.control_port
                                                 )
-                
 
     def __str__(self):
         return 'Tor Connection Listening on: {:5s}\nControl port on: {:5s}'.format(
@@ -233,7 +233,7 @@ class TorConnection:
 
     def __del__(self):
         self.stop_tor()
-        ## TODO: Maybe add support for OSError or something
+        # TODO: Maybe add support for OSError or something
         if self.__data_directory: 
             try:
                 shutil.rmtree(self.__data_directory)
